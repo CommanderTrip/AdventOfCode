@@ -6,5 +6,4 @@ import day02.solution
  */
 fun main() {
     solution()
-
 }
