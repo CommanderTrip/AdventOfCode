@@ -30,11 +30,9 @@ fun solution() {
 }
 
 /**
- * 1. Get the Starting and End index for each elf
- * 2. Determine if either elf fully contain the other
- * 3. return 1 for yes, 0 for no
+ * Get the start and ends of each elf
  */
-fun part1(rawPair: String): Int {
+fun getStartAndEnds(rawPair: String): List<Int> {
     val pair = rawPair.split(",")
 
     // Elf 1
@@ -44,6 +42,17 @@ fun part1(rawPair: String): Int {
     // Elf 2
     val elf2Start = pair[1].split("-")[0].toInt()
     val elf2End = pair[1].split("-")[1].toInt()
+
+    return listOf(elf1Start, elf1End, elf2Start, elf2End)
+}
+
+/**
+ * 1. Get the Starting and End index for each elf
+ * 2. Determine if either elf fully contain the other
+ * 3. return 1 for yes, 0 for no
+ */
+fun part1(rawPair: String): Int {
+    val (elf1Start, elf1End, elf2Start, elf2End) = getStartAndEnds(rawPair)
 
     // Guaranteed to fully overlap if the starts or ends are the same
     if (elf1Start == elf2Start || elf1End == elf2End) return 1
@@ -62,15 +71,7 @@ fun part1(rawPair: String): Int {
  * Determine if there is any overlap at all.
  */
 fun part2(rawPair: String): Int {
-    val pair = rawPair.split(",")
-
-    // Elf 1
-    val elf1Start = pair[0].split("-")[0].toInt()
-    val elf1End = pair[0].split("-")[1].toInt()
-
-    // Elf 2
-    val elf2Start = pair[1].split("-")[0].toInt()
-    val elf2End = pair[1].split("-")[1].toInt()
+    val (elf1Start, elf1End, elf2Start, elf2End) = getStartAndEnds(rawPair)
 
     // Only guaranteed no overlap in two conditions
     if (elf1End < elf2Start ||
