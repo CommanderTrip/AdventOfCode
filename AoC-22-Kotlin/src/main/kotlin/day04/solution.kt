@@ -1,21 +1,80 @@
 package day04
 
-/*
-Day 2: Rucksack Reorganization
+import java.io.File
 
-Each line represents 2 containers of equal size.
-No character (case-sensitive) can repeat in the containers but 1 does for each.
-Lower case maps to 1 - 26.
-Upper case maps to 27 - 52.
+/*
+Day 4: Camp Cleanup
 
 Part 1
-Problem Statement: What is the sum of the priorities of those item types?
-Sample Solution: 157 (16 + 38 + 42 + 22 + 20 + 19)
+Problem Statement: In how many assignment pairs does one range fully contain the other?
+Sample Solution: 2 (group 4 and 5)
 
 Part 2
-Problem Statement: What is the sum of the priorities of those item types?
-Sample Solution: 70 (18 + 52)
+Problem Statement: In how many assignment pairs does one range fully contain the other?
+Sample Solution:
 
  */
-class solution {
+fun solution() {
+    // Get the path to txt
+    val pathToInput = Constants.getPath(4, false)
+
+    var sumOfOverlaps = 0
+
+
+    File(pathToInput).forEachLine { elfPair ->
+        //sumOfOverlaps += part1(elfPair)
+        sumOfOverlaps += part2(elfPair)
+    }
+
+    println(sumOfOverlaps)
+}
+
+/**
+ * 1. Get the Starting and End index for each elf
+ * 2. Determine if either elf fully contain the other
+ * 3. return 1 for yes, 0 for no
+ */
+fun part1(rawPair: String): Int {
+    val pair = rawPair.split(",")
+
+    // Elf 1
+    val elf1Start = pair[0].split("-")[0].toInt()
+    val elf1End = pair[0].split("-")[1].toInt()
+
+    // Elf 2
+    val elf2Start = pair[1].split("-")[0].toInt()
+    val elf2End = pair[1].split("-")[1].toInt()
+
+    // Guaranteed to fully overlap if the starts or ends are the same
+    if (elf1Start == elf2Start || elf1End == elf2End) return 1
+
+    // find if elf 1 fully overlaps
+    if (elf1Start < elf2Start && elf1End > elf2End) return 1
+
+    // find if elf 2 fully overlaps
+    if (elf2Start < elf1Start && elf2End > elf1End) return 1
+
+    // No full overlap
+    return 0
+}
+
+/**
+ * Determine if there is any overlap at all.
+ */
+fun part2(rawPair: String): Int {
+    val pair = rawPair.split(",")
+
+    // Elf 1
+    val elf1Start = pair[0].split("-")[0].toInt()
+    val elf1End = pair[0].split("-")[1].toInt()
+
+    // Elf 2
+    val elf2Start = pair[1].split("-")[0].toInt()
+    val elf2End = pair[1].split("-")[1].toInt()
+
+    // Only guaranteed no overlap in two conditions
+    if (elf1End < elf2Start ||
+        elf2End < elf1Start) return 0
+
+    return 1
 }
