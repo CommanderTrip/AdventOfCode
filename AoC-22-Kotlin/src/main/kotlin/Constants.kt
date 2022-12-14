@@ -5,9 +5,9 @@ class Constants {
          * Get the path to the specified Challenge day and Test.
          *
          * @param adventDay Advent Code Day
-         * @param isExample Use example input or Real input
+         * @param isSample Use example input or Real input
          */
-        fun getPath(adventDay: Int, isExample: Boolean): String {
+        fun getPath(adventDay: Int, isSample: Boolean): String {
             // Ensure day was a number between 1 - 25
             if (adventDay < 1 || adventDay > 25) throw Error("Challenge day must be between 1 and 25 inclusively.")
 
@@ -19,7 +19,7 @@ class Constants {
             }
 
             // Get input file name
-            val fileName = if (isExample) {
+            val fileName = if (isSample) {
                 "sample.txt"
             } else {
                 "input.txt"

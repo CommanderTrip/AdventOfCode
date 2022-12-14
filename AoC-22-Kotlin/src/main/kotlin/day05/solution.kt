@@ -21,29 +21,72 @@ fun solution() {
     // Get the path to txt
     val pathToInput = Constants.getPath(5, true)
 
-    // I am not making a dynamic stack determiner. I am hard coding it for the solution
-    val containerYard = null;
+    val containerYard = mutableListOf<Stack<Char>>();
 
+//    val stack1 = Stack<Char>()
+//    stack1.push('Z')
+//    stack1.push('N')
+//
+//    val stack2 = Stack<Char>()
+//    stack2.push('M')
+//    stack2.push('C')
+//    stack2.push('D')
+//
+//    val stack3 = Stack<Char>()
+//    stack3.push('P')
+//
+//    containerYard.add(stack1)
+//    containerYard.add(stack2)
+//    containerYard.add(stack3)
 
     File(pathToInput).forEachLine { instruction ->
-       if (instruction.isNotBlank() && instruction[1] == '1') println(instruction[instruction.length - 1])
+
+       if (instruction.isNotBlank()) {
+           // We are on a 'move' instruction
+           // e.g. move 1 from 2 to 3
+          if (instruction[0] == 'm') {
+              val directions = instruction.split(" ")
+              var quantity = directions[1].toInt()
+              val fromStack = directions[3].toInt()
+              val toStack = directions[5].toInt()
+
+              // Get the cargo stacks
+              val fromCargoStack = containerYard[fromStack - 1]
+              val toCargoStack = containerYard[toStack - 1]
+
+              // Loop for the quantity
+              while(quantity > 0) {
+                  val cargo = fromCargoStack.pop()
+                  toCargoStack.push(cargo)
+                  quantity--
+              }
+
+              // Save the changes to the stacks
+              containerYard[fromStack - 1] = fromCargoStack
+              containerYard[toStack - 1] = toCargoStack
+          }
+       } else {
+           // This is diagram of the stacks
+//           containerYard = buildContainerStacks(instruction)
+       }
     }
+
+    printStackTops(containerYard)
 
 }
 
 /**
  * Dynamically builds the stacks of containers
- * 1. Determine how many stacks we need
- * 2. fill each stack
  */
-fun buildContainerStacks(filePath: String): List<Stack<Char>> {
-    val containerYard = mutableListOf<Stack<Char>>()
-    var numOfContainers = 0
+fun buildContainerStacks(instruction: String, currentYard: MutableList<Char>): MutableList<Char> {
 
-    File(filePath).forEachLine { instruction ->
-        if (instruction[1] == '1') {
-            numOfContainers = instruction[instruction.length - 1].digitToInt()
-            return@forEachLine
-        }
+}
+
+/**
+ * Print the tops of each stack
+ */
+fun printStackTops(yard: List<Stack<Char>>) {
+    for (stack: Stack<Char> in yard) {
+        print("${stack.peek()} ")
     }
 }
