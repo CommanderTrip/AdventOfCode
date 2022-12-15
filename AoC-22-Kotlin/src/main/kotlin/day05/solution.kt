@@ -1,7 +1,6 @@
 package day05
 
 import java.io.File
-import java.util.Stack
 
 /*
 Day 5: Supply Stacks
@@ -14,79 +13,111 @@ Part 1
 Sample Solution: CMZ
 
 Part 2
-Sample Solution:
+Sample Solution: MCD
 
  */
 fun solution() {
     // Get the path to txt
-    val pathToInput = Constants.getPath(5, true)
+    val pathToInput = Constants.getPath(5, false)
 
-    val containerYard = mutableListOf<Stack<Char>>();
-
-//    val stack1 = Stack<Char>()
-//    stack1.push('Z')
-//    stack1.push('N')
-//
-//    val stack2 = Stack<Char>()
-//    stack2.push('M')
-//    stack2.push('C')
-//    stack2.push('D')
-//
-//    val stack3 = Stack<Char>()
-//    stack3.push('P')
-//
-//    containerYard.add(stack1)
-//    containerYard.add(stack2)
-//    containerYard.add(stack3)
+    val containerYard = buildContainerStacks(pathToInput)
 
     File(pathToInput).forEachLine { instruction ->
 
-       if (instruction.isNotBlank()) {
+       if (instruction.isNotEmpty() && instruction[0] == 'm') {
            // We are on a 'move' instruction
            // e.g. move 1 from 2 to 3
-          if (instruction[0] == 'm') {
-              val directions = instruction.split(" ")
-              var quantity = directions[1].toInt()
-              val fromStack = directions[3].toInt()
-              val toStack = directions[5].toInt()
-
-              // Get the cargo stacks
-              val fromCargoStack = containerYard[fromStack - 1]
-              val toCargoStack = containerYard[toStack - 1]
-
-              // Loop for the quantity
-              while(quantity > 0) {
-                  val cargo = fromCargoStack.pop()
-                  toCargoStack.push(cargo)
-                  quantity--
-              }
-
-              // Save the changes to the stacks
-              containerYard[fromStack - 1] = fromCargoStack
-              containerYard[toStack - 1] = toCargoStack
-          }
-       } else {
-           // This is diagram of the stacks
-//           containerYard = buildContainerStacks(instruction)
+           moveOperation(instruction, containerYard)
        }
     }
 
     printStackTops(containerYard)
-
 }
 
 /**
  * Dynamically builds the stacks of containers
  */
-fun buildContainerStacks(instruction: String, currentYard: MutableList<Char>): MutableList<Char> {
+fun buildContainerStacks(path: String): MutableList<MutableList<Char>> {
+    val containerYard = mutableListOf<MutableList<Char>>()
 
+    File(path).forEachLine { line ->
+        // Ignore Empty, Move, and the Numbers lines
+        if (line.isNotEmpty() && line[0] != 'm' && line[1] != '1') {
+            val numOfStacks = line.length / 4 + 1
+
+            // expand the yard as needed
+            while (containerYard.size < numOfStacks) {
+                containerYard.add(mutableListOf())
+            }
+
+            // Add cargo to the stacks
+            for (i in 0 until numOfStacks) {
+                val cargo = line[4 * i + 1] // Each cargo is 4 long and offset 1 with zero index
+                if (cargo != ' ') {
+                    containerYard[i].add(0, cargo) // Always add to the front since we read top to bottom
+                }
+            }
+        }
+    }
+
+    return containerYard
 }
 
 /**
  * Print the tops of each stack
  */
-fun printStackTops(yard: List<Stack<Char>>) {
-    for (stack: Stack<Char> in yard) {
-        print("${stack.peek()} ")
+fun printStackTops(yard: MutableList<MutableList<Char>>) {
+    for (stack: MutableList<Char> in yard) {
+        print("${stack[stack.lastIndex]}")
     }
+}
+
+fun moveOperation(instruction: String, containerYard: MutableList<MutableList<Char>>) {
+    val directions = instruction.split(" ")
+    val quantity = directions[1].toInt()
+    val fromStack = directions[3].toInt()
+    val toStack = directions[5].toInt()
+
+    // Get the cargo stacks
+    val fromCargoStack = containerYard[fromStack - 1]
+    val toCargoStack = containerYard[toStack - 1]
+
+    //val (newFromCargoStack, newToCargoStack) = part1(quantity, fromCargoStack, toCargoStack)
+    val (newFromCargoStack, newToCargoStack) = part2(quantity, fromCargoStack, toCargoStack)
+
+    // Save the changes to the stacks
+    containerYard[fromStack - 1] = newFromCargoStack
+    containerYard[toStack - 1] = newToCargoStack
+}
+
+/**
+ * The crane picks one crate up at a time
+ */
+fun part1(quantity: Int, from: MutableList<Char>, to: MutableList<Char>): Pair<MutableList<Char>,MutableList<Char>> {
+    var i = quantity
+
+    // Loop for the quantity
+    while(i > 0) {
+        val cargo = from.removeLast()
+        to.add(to.size, cargo)
+        i--
+    }
+
+    return Pair(to, from)
+}
+
+/**
+ * The crane can move many crates from one stack at once
+ */
+fun part2(quantity: Int, from: MutableList<Char>, to: MutableList<Char>): Pair<MutableList<Char>,MutableList<Char>>{
+    var i = quantity
+
+    // Loop for the quantity
+    while(i > 0) {
+        val cargo = from.removeAt(from.size - quantity)
+        to.add(to.size, cargo)
+        i--
+    }
+
+    return Pair(to, from)
 }
