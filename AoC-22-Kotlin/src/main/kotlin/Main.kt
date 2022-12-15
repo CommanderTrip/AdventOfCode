@@ -1,4 +1,4 @@
-import day05.solution
+import day06.solution
 
 /**
  * Do not import more than one day.
