@@ -12,7 +12,8 @@ Part 1
 Sample Solution: 21 (16 edges + 5 interior)
 
 Part 2
-Sample Solution:
+What is the highest scenic score possible for any tree?
+Sample Solution: 8
 
  */
 fun solution() {
@@ -29,10 +30,10 @@ fun solution() {
         grid.add(rowSplit)
     }
 
-    print(part1(grid))
+    part1(grid)
 }
 
-fun part1(treeMap: MutableList<List<Int>>): Int {
+fun part1(treeMap: MutableList<List<Int>>) {
     var numOfVisibleTrees = 0
 
     for (i in 0 until treeMap.size) {
@@ -43,25 +44,58 @@ fun part1(treeMap: MutableList<List<Int>>): Int {
                 numOfVisibleTrees++
             } else {
                 // Determine if interior tree is visible
-                if (checkRight(i,j) && checkLeft(i,j) && checkUp(i,j) && checkDown(i,j)) numOfVisibleTrees++
+                // Only needs to be visible from one side to be considered 'Visible'
+                if (checkRight(i,j, treeMap) || checkLeft(i,j, treeMap) || checkUp(i,j, treeMap) || checkDown(i,j, treeMap)) {
+                    println("Interior Tree ${treeMap[i][j]} @ [$j][$i] is visible")
+                    numOfVisibleTrees++
+                }
             }
         }
     }
 
-    return 0
+    println("The number of visible trees is $numOfVisibleTrees")
 }
- fun checkRight(x: Int, y:Int): Boolean {
 
+/**
+ * I would like to see if there is an improved way to determine this. Otherwise, for small input, I am going to iterate
+ * over each layer.
+ */
+ fun checkRight(row: Int, col:Int, map: MutableList<List<Int>>): Boolean {
+    for (i in col+1 until map[row].size) {
+        if (map[row][i] >= map[row][col]) {
+            //println("A tree to the right is bigger.")
+            return false
+        }
+    }
+    return true
  }
 
-fun checkLeft(x: Int, y:Int): Boolean {
-
+fun checkLeft(row: Int, col:Int, map: MutableList<List<Int>>): Boolean {
+    for (i in 0 until col) {
+        if (map[row][i] >= map[row][col]) {
+            //println("A tree to the left is bigger.")
+            return false
+        }
+    }
+    return true
 }
 
-fun checkUp(x: Int, y:Int): Boolean {
-
+fun checkUp(row: Int, col:Int, map: MutableList<List<Int>>): Boolean {
+    for (i in 0 until row) {
+        if (map[i][col] >= map[row][col]) {
+            //println("A tree above is bigger.")
+            return false
+        }
+    }
+    return true
 }
 
-fun checkDown(x: Int, y:Int): Boolean {
-
+fun checkDown(row: Int, col:Int, map: MutableList<List<Int>>): Boolean {
+    for (i in row+1 until map.size) {
+        if (map[i][col] >= map[row][col]) {
+            //println("A tree below is bigger.")
+            return false
+        }
+    }
+    return true
 }
