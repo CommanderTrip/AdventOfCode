@@ -6,104 +6,69 @@ import kotlin.math.abs
 
 
 /*
-Day 9: Rope Bridge
+Day 10: Cathode-Ray Tube
 
-How many positions does the tail of the rope visit at least once?
+20th, 60th, 100th, 140th, 180th, and 220th cycles.
+What is the sum of these six signal strengths
 
 Part 1
-Sample Solution: 13
+Sample Solution: 13140
 
 Part 2
-Sample Solution:
+Sample Solution: N/A
 
  */
 fun solution() {
     // Get the path to txt
-    val pathToInput = Constants.getPath(9, false)
+    val pathToInput = Constants.getPath(10, false)
 
-    // X, Y position pair
-    var headPos = Pair(0,0)
-    var tailPos = Pair(0,0)
-
-    val tailHistory = mutableListOf(tailPos)
+    var xRegisterHistory = mutableListOf(1)
 
     // Build the grid and store it in memory
-    File(pathToInput).forEachLine { headMove ->
-        val instruction = headMove.split(" ")
-        val direction = instruction[0]
-        val moveAmount = instruction[1].toInt()
+    File(pathToInput).forEachLine { instruction ->
+        val parse = instruction.split(" ")
 
-        for (i in 1..moveAmount) {
-            headPos = moveHead(direction, headPos)
-            tailPos = moveTail(headPos, tailPos)
-
-            if (!tailHistory.contains(tailPos)) tailHistory.add(tailPos)
-        }
+        if (parse[0] == "addx") xRegisterHistory = addx(parse[1].toInt(), xRegisterHistory)
+        else xRegisterHistory = noop(xRegisterHistory)
     }
 
-
-    // Part 1
-    println(tailHistory.size)
+    print(part2(xRegisterHistory))
 }
 
-fun moveHead(direction: String, currentPosition: Pair<Int, Int>): Pair<Int, Int> {
-    val end = "Head"
-    when (direction) {
-        "U" -> {
-            printMove(end, "Up")
-            return currentPosition.copy(second = currentPosition.second + 1)
-        }
-        "D" -> {
-            printMove(end, "Down")
-            return currentPosition.copy(second = currentPosition.second - 1)
-        }
-        "L" -> {
-            printMove(end, "Left")
-            return currentPosition.copy(first = currentPosition.first - 1)
-        }
-        "R" -> {
-            printMove(end, "Right")
-            return currentPosition.copy(first = currentPosition.first + 1)
-        }
-    }
-    throw Error("Head move was unrecognized.")
+fun part1(regHistory: MutableList<Int>): Int {
+    return regHistory[19] * 20 +
+            regHistory[59] * 60 +
+            regHistory[99] * 100 +
+            regHistory[139] * 140 +
+            regHistory[179] * 180 +
+            regHistory[219] * 220
 }
 
-fun moveTail(headPosition: Pair<Int, Int>, tailPosition: Pair<Int, Int>): Pair<Int, Int> {
-    // Check if head is too far away
-    val verticalDelta = headPosition.second - tailPosition.second
-    val horizontalDelta = headPosition.first - tailPosition.first
-    val end = "Tail"
+fun part2(regHistory: MutableList<Int>) {
+    var row = 0
+    for (i in 0 until regHistory.size) {
+        val delta = i - 40 * row - regHistory[i]
+        if (delta < 2 && delta > -2) print("#")
+        else print(".")
 
-    println("Deltas - V:$verticalDelta, H:$horizontalDelta")
-
-    // Move UP right behind head
-    if (verticalDelta > 1)  {
-        printMove(end, "Up")
-        return tailPosition.copy(headPosition.first, headPosition.second-1)
+        if (i == 39 || i == 79 || i == 119 || i == 159 || i == 199 || i == 239) {
+            row++
+            println()
+        }
     }
-
-    // Move DOWN to Head
-    if (verticalDelta < -1) {
-        printMove(end, "Down")
-        return tailPosition.copy(headPosition.first, headPosition.second+1)
-    }
-
-    // Move LEFT right behind head
-    if (horizontalDelta < -1)  {
-        printMove(end, "Left")
-        return tailPosition.copy(headPosition.first+1, headPosition.second)
-    }
-
-    // Move RIGHT to Head
-    if (horizontalDelta > 1) {
-        printMove(end, "Right")
-        return tailPosition.copy(headPosition.first-1, headPosition.second)
-    }
-
-    return tailPosition
 }
 
-fun printMove(ropeEnd: String, direction: String) {
-    println("$ropeEnd moved $direction")
+fun addx(value:Int, regHistory: MutableList<Int>): MutableList<Int> {
+    // run first cycle
+    val addHistory = noop(regHistory)
+
+    // run second cycle
+    addHistory.add(addHistory.last() + value)
+    return addHistory
+}
+
+fun noop (regHistory: MutableList<Int>): MutableList<Int>{
+    // Run one cycle and append the last value
+    regHistory.add(regHistory.last())
+    return regHistory
 }
