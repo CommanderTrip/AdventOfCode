@@ -1,6 +1,6 @@
-pub mod day3;
+pub mod day4;
 
-use crate::day3::solutions::solution_part2;
+use crate::day4::solutions::solution_part2;
 
 fn main() {
     solution_part2();
