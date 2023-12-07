@@ -1,5 +1,3 @@
-use std::num;
-
 use crate::file_utility::file_utility::get_file_lines;
 
 /// Ay this was great for part 2! Just remove the white space in the input and ezpz
