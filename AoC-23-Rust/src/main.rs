@@ -1,7 +1,7 @@
-pub mod day7;
-pub mod file_utility;
+pub mod day8;
+pub mod utility;
 
-use crate::day7::solutions::solution_part2;
+use crate::day8::solutions::solution_part2;
 
 fn main() {
     solution_part2();
