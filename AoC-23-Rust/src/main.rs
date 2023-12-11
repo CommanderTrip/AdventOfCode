@@ -1,8 +1,8 @@
-pub mod day8;
+pub mod day9;
 pub mod utility;
 
-use crate::day8::solutions::solution_part2;
+use crate::day9::solutions::solution_part1;
 
 fn main() {
-    solution_part2();
+    println!("{}", solution_part1());
 }

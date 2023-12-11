@@ -66,6 +66,7 @@ pub fn solution_part1() -> i32 {
     return moves;
 }
 
+/// This gets the right answer but overflows :(
 pub fn solution_part2() -> u128 {
     let mut file_reader = get_file_lines("input.txt", 8);
     let mut node_map: HashMap<String, Node> = HashMap::new();
