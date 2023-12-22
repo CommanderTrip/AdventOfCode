@@ -1,7 +1,7 @@
-pub mod day12;
+pub mod day13;
 pub mod utility;
 
-use crate::day12::solutions::solution_part1;
+use crate::day13::solutions::solution_part1;
 
 fn main() {
     println!("Solution: {}", solution_part1());
