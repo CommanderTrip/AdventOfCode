@@ -72,37 +72,40 @@ pub fn solution_part1() -> usize {
 }
 
 pub fn solution_part2() -> usize {
-    let mut file_reader = get_file_lines("sample.txt", 11);
+    let mut file_reader = get_file_lines("input.txt", 11);
 
     let mut universe: Vec<Vec<char>> = vec![];
     let mut galaxies: Vec<Galaxy> = vec![];
 
     while file_reader.peek().is_some() {
         let line: Vec<char> = file_reader.next().unwrap().unwrap().chars().collect();
-
         universe.push(line);
     }
 
-    let multiplier = 10;
-    let mut y_expansion = 0;
-    let mut x_expansion = 0;
+    let expansion = 999_999;
 
-    // get every galaxy from the initial image with y expansion
+    // get every galaxy from the initial image
     for (y, row) in universe.iter().enumerate() {
-        let mut blank_row = true;
         for (x, symbol) in row.iter().enumerate() {
             if *symbol == '#' {
                 galaxies.push(Galaxy {
                     x,
                     x_adj: x,
                     y,
-                    y_adj: y + y_expansion,
+                    y_adj: y,
                 });
-                blank_row = false;
             }
         }
-        if blank_row {
-            y_expansion += multiplier
+    }
+
+    // Account for y expansion
+    for (index, row) in universe.iter().enumerate() {
+        if !row.contains(&'#') {
+            for galaxy in &mut galaxies {
+                if galaxy.y > index {
+                    galaxy.y_adj += expansion;
+                }
+            }
         }
     }
 
@@ -115,16 +118,13 @@ pub fn solution_part2() -> usize {
                 continue 'a;
             }
         }
-        x_expansion += multiplier;
         for galaxy in &mut galaxies {
             if galaxy.x > i {
-                galaxy.x_adj += x_expansion as usize;
+                galaxy.x_adj += expansion as usize;
             }
         }
-        i += 1
+        i += 1;
     }
-
-    println!("{:?}", galaxies);
 
     // Find distances between each one
     let mut sum_distance = 0;
@@ -133,8 +133,18 @@ pub fn solution_part2() -> usize {
             if second <= first {
                 continue;
             }
-            sum_distance += (galaxy2.y_adj - galaxy.y_adj)
-                + (galaxy2.x_adj as i32 - galaxy.x_adj as i32).abs() as usize
+
+            let dy = galaxy2.y_adj - galaxy.y_adj;
+            let dx;
+            if galaxy2.x_adj > galaxy.x_adj {
+                dx = galaxy2.x_adj - galaxy.x_adj
+            } else {
+                dx = galaxy.x_adj - galaxy2.x_adj
+            }
+
+            let d = dy + dx;
+
+            sum_distance += d;
         }
     }
 
