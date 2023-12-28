@@ -1,4 +1,5 @@
 use std::collections::VecDeque;
+use std::ops::Div;
 
 use crate::utility::file_utility::get_file_lines;
 
@@ -150,7 +151,7 @@ pub fn solution_part1() -> i32 {
 }
 
 pub fn solution_part2() -> i32 {
-    let mut file_reader = get_file_lines("sample.txt", 10);
+    let mut file_reader = get_file_lines("input.txt", 10);
 
     let mut graph: Vec<Vec<Node>> = vec![]; // [column][row]
     let mut stack: VecDeque<Node> = VecDeque::new();
@@ -186,10 +187,11 @@ pub fn solution_part2() -> i32 {
         let node = stack.pop_back().unwrap();
         loop_vec.push(node.clone());
         graph[node.position[0]][node.position[1]].color = Color::White;
-        graph[node.position[0]][node.position[1]].color = Color::White;
 
         // Look around and add unvisited nodes (that follow pipe) to queue, change color to seen, set to self.distance + 1
-        if node.position[0] != 0 {
+        if node.position[0] != 0
+            && (node.value == '-' || node.value == 'J' || node.value == '7' || node.value == 'S')
+        {
             // Look Left
             match graph[node.position[0] - 1][node.position[1]].value {
                 '-' | 'L' | 'F' => {
@@ -198,13 +200,16 @@ pub fn solution_part2() -> i32 {
                         graph[node.position[0] - 1][node.position[1]].color = Color::Grey;
                         graph[node.position[0] - 1][node.position[1]].heading = Heading::Left;
                         stack.push_back(graph[node.position[0] - 1][node.position[1]].clone());
+                        continue;
                     }
                 }
                 _ => { /* Ignore */ }
             }
         }
 
-        if node.position[1] + 1 != graph[0].len() {
+        if node.position[1] + 1 != graph[0].len()
+            && (node.value == '|' || node.value == '7' || node.value == 'F' || node.value == 'S')
+        {
             // Look Down
             match graph[node.position[0]][node.position[1] + 1].value {
                 '|' | 'J' | 'L' => {
@@ -213,13 +218,16 @@ pub fn solution_part2() -> i32 {
                         graph[node.position[0]][node.position[1] + 1].color = Color::Grey;
                         graph[node.position[0]][node.position[1] + 1].heading = Heading::Down;
                         stack.push_back(graph[node.position[0]][node.position[1] + 1].clone());
+                        continue;
                     }
                 }
                 _ => { /* Ignore */ }
             }
         }
 
-        if node.position[0] + 1 != graph.len() {
+        if node.position[0] + 1 != graph.len()
+            && (node.value == '-' || node.value == 'F' || node.value == 'L' || node.value == 'S')
+        {
             // Look Right
             match graph[node.position[0] + 1][node.position[1]].value {
                 '-' | 'J' | '7' => {
@@ -228,13 +236,16 @@ pub fn solution_part2() -> i32 {
                         graph[node.position[0] + 1][node.position[1]].color = Color::Grey;
                         graph[node.position[0] + 1][node.position[1]].heading = Heading::Right;
                         stack.push_back(graph[node.position[0] + 1][node.position[1]].clone());
+                        continue;
                     }
                 }
                 _ => { /* Ignore */ }
             }
         }
 
-        if node.position[1] != 0 {
+        if node.position[1] != 0
+            && (node.value == '|' || node.value == 'J' || node.value == 'L' || node.value == 'S')
+        {
             // Look Up
             match graph[node.position[0]][node.position[1] - 1].value {
                 '|' | 'F' | '7' => {
@@ -243,6 +254,7 @@ pub fn solution_part2() -> i32 {
                         graph[node.position[0]][node.position[1] - 1].color = Color::Grey;
                         graph[node.position[0]][node.position[1] - 1].heading = Heading::Up;
                         stack.push_back(graph[node.position[0]][node.position[1] - 1].clone());
+                        continue;
                     }
                 }
                 _ => { /* Ignore */ }
@@ -252,77 +264,22 @@ pub fn solution_part2() -> i32 {
         // loop
     }
 
-    let mut solution = 0;
-    // Traverse the loop again, looking "right", and counting until hitting another part of the loop
-    for tile in &loop_vec {
-        match tile.heading {
-            Heading::Up => {
-                let mut index = tile.position[0] + 1;
-                while index < graph.len() {
-                    if loop_vec.contains(&graph[index][tile.position[1]])
-                        || graph[index][tile.position[1]].value == 'I'
-                    {
-                        break;
-                    }
-                    index += 1;
-                    solution += 1;
-                    graph[tile.position[0]][index].value = 'I';
-                }
-            }
-            Heading::Down => {
-                let mut index = tile.position[0];
-                if index == 0 {
-                    break;
-                }
-                index -= 1;
-                loop {
-                    if loop_vec.contains(&graph[index][tile.position[1]])
-                        || graph[index][tile.position[1]].value == 'I'
-                    {
-                        break;
-                    }
-                    solution += 1;
-                    graph[tile.position[0]][index].value = 'I';
-                    if index == 0 {
-                        break;
-                    }
-                    index -= 1;
-                }
-            }
-            Heading::Left => {
-                let mut index = tile.position[1];
-                if index == 0 {
-                    break;
-                }
-                index -= 1;
-                loop {
-                    if loop_vec.contains(&graph[tile.position[0]][index])
-                        || graph[tile.position[0]][index].value == 'I'
-                    {
-                        break;
-                    }
-                    solution += 1;
-                    graph[tile.position[0]][index].value = 'I';
-                    if index == 0 {
-                        break;
-                    }
-                    index -= 1;
-                }
-            }
-            Heading::Right => {
-                let mut index = tile.position[1] + 1;
-                while index < graph[0].len() {
-                    if loop_vec.contains(&graph[tile.position[0]][index])
-                        || graph[tile.position[0]][index].value == 'I'
-                    {
-                        break;
-                    }
-                    index += 1;
-                    solution += 1;
-                    graph[tile.position[0]][index].value = 'I';
-                }
-            }
-        }
-    }
+    // Shoelace formula
+    // A = (1/2) * Sum{(y + y')(x - x')}
+    let area = loop_vec
+        .iter()
+        .enumerate()
+        .fold(0, |acc, (i, node)| {
+            let l = (i + 1) % loop_vec.len();
+            acc + (node.position[1] + loop_vec[l].position[1]) as i32
+                * (node.position[0] as i32 - loop_vec[l].position[0] as i32)
+        })
+        .abs()
+        .div(2);
+
+    // Picks formula
+    // A = i + (b / 2) - 1
+    let solution = area + 1 - (loop_vec.len() / 2) as i32;
+
     return solution;
 }
